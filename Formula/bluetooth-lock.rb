@@ -1,7 +1,7 @@
 class BluetoothLock < Formula
   desc "Automatically disable Bluetooth when your Mac screen locks"
   homepage "https://github.com/alexcarol/bluetooth-lock"
-  url "https://github.com/alexcarol/bluetooth-lock/archive/refs/tags/v1.0.0.tar.gz"
+  url "https://github.com/alexcarol/bluetooth-lock/archive/refs/tags/v0.1.0.tar.gz"
   sha256 "PLACEHOLDER"
   license "MIT"
 
