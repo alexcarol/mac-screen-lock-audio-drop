@@ -1,6 +1,10 @@
 # bluetooth-lock
 
-Automatically disables Bluetooth when your Mac screen locks and re-enables it when you unlock.
+Disconnects Bluetooth audio devices when your Mac screen locks and prevents them from reconnecting until you unlock. Input devices (keyboard, mouse) stay connected the entire time.
+
+## Why?
+
+When you lock your Mac near shared Bluetooth headphones or speakers, those audio devices can still connect to it. This tool prevents that by disconnecting audio devices on lock and rejecting any audio connection attempts while locked.
 
 ## Installation
 
@@ -35,7 +39,13 @@ brew uninstall bluetooth-lock
 
 ## How It Works
 
-The tool listens for macOS screen lock/unlock notifications (`com.apple.screenIsLocked` and `com.apple.screenIsUnlocked`) and toggles Bluetooth power accordingly using the IOBluetooth framework.
+The tool listens for macOS screen lock/unlock notifications and uses the IOBluetooth framework to:
+
+1. **On lock**: disconnect all connected audio devices and start monitoring for new connections
+2. **While locked**: automatically disconnect any audio device that tries to connect
+3. **On unlock**: stop monitoring, allowing audio devices to connect freely again
+
+Bluetooth itself stays on, so peripherals like keyboards and mice are never interrupted.
 
 ## Requirements
 

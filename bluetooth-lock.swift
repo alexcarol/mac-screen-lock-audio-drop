@@ -1,42 +1,43 @@
 import Foundation
 import IOBluetooth
 
-@_silgen_name("IOBluetoothPreferenceSetControllerPowerState")
-func setBluetoothPower(_ state: Int32)
+let kBluetoothAudioMajorClass: UInt32 = 0x04
 
-/// Addresses of devices that were connected before screen lock
-var connectedAddresses: [String] = []
+/// Notification token for the connection listener (nil when unlocked)
+var connectionNotification: IOBluetoothUserNotification?
 
-func saveConnectedDevices() {
-    guard let paired = IOBluetoothDevice.pairedDevices() as? [IOBluetoothDevice] else { return }
-    connectedAddresses = paired.filter { $0.isConnected() }.compactMap { $0.addressString }
+func isAudioDevice(_ device: IOBluetoothDevice) -> Bool {
+    return device.deviceClassMajor == kBluetoothAudioMajorClass
 }
 
-func reconnectDevices() {
-    for address in connectedAddresses {
-        guard let device = IOBluetoothDevice(addressString: address) else { continue }
-        DispatchQueue.global(qos: .userInitiated).async {
-            device.openConnection()
+func disconnectAudioDevices() {
+    guard let paired = IOBluetoothDevice.pairedDevices() as? [IOBluetoothDevice] else { return }
+    for device in paired where device.isConnected() && isAudioDevice(device) {
+        device.closeConnection()
+    }
+}
+
+/// Observer that intercepts and rejects audio device connections while locked
+class BluetoothGuard: NSObject {
+    @objc func onConnect(_ notification: IOBluetoothUserNotification, device: IOBluetoothDevice) {
+        if isAudioDevice(device) {
+            device.closeConnection()
         }
     }
 }
 
-// Trigger permission prompt on startup (ensures Bluetooth is on)
-setBluetoothPower(1)
-
+let guard_ = BluetoothGuard()
 let center = DistributedNotificationCenter.default()
 
 center.addObserver(forName: .init("com.apple.screenIsLocked"), object: nil, queue: nil) { _ in
-    saveConnectedDevices()
-    setBluetoothPower(0)
+    disconnectAudioDevices()
+    connectionNotification = IOBluetoothDevice.register(forConnectNotifications: guard_,
+                                                         selector: #selector(BluetoothGuard.onConnect(_:device:)))
 }
 
 center.addObserver(forName: .init("com.apple.screenIsUnlocked"), object: nil, queue: nil) { _ in
-    setBluetoothPower(1)
-    // Give the controller a moment to power on before reconnecting
-    DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 1.0) {
-        reconnectDevices()
-    }
+    connectionNotification?.unregister()
+    connectionNotification = nil
 }
 
 RunLoop.current.run()
