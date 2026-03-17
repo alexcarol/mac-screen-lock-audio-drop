@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.user.bluetooth-lock</string>
+    <string>com.user.screen-lock-audio-drop</string>
     <key>ProgramArguments</key>
     <array>
         <string>__SCRIPT_PATH__</string>
@@ -13,8 +13,8 @@
     <key>KeepAlive</key>
     <true/>
     <key>StandardOutPath</key>
-    <string>/tmp/bluetooth-lock.log</string>
+    <string>/tmp/screen-lock-audio-drop.log</string>
     <key>StandardErrorPath</key>
-    <string>/tmp/bluetooth-lock.err</string>
+    <string>/tmp/screen-lock-audio-drop.err</string>
 </dict>
 </plist>

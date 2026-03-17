@@ -1,4 +1,4 @@
-# bluetooth-lock
+# mac-screen-lock-audio-drop
 
 Disconnects Bluetooth audio devices when your Mac screen locks and prevents them from reconnecting until you unlock. Input devices (keyboard, mouse) stay connected the entire time.
 
@@ -11,15 +11,15 @@ When you lock your Mac near shared Bluetooth headphones or speakers, those audio
 ### Homebrew
 
 ```bash
-brew tap alexcarol/bluetooth-lock https://github.com/alexcarol/bluetooth-lock
-brew install bluetooth-lock && brew services start bluetooth-lock
+brew tap alexcarol/mac-screen-lock-audio-drop https://github.com/alexcarol/mac-screen-lock-audio-drop
+brew install screen-lock-audio-drop && brew services start screen-lock-audio-drop
 ```
 
 ### Manual
 
 ```bash
-git clone https://github.com/alexcarol/bluetooth-lock.git
-cd bluetooth-lock
+git clone https://github.com/alexcarol/mac-screen-lock-audio-drop.git
+cd mac-screen-lock-audio-drop
 ./setup.sh
 ```
 
@@ -28,7 +28,7 @@ cd bluetooth-lock
 ### Homebrew
 
 ```bash
-brew uninstall bluetooth-lock
+brew uninstall screen-lock-audio-drop
 ```
 
 ### Manual
