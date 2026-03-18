@@ -19,18 +19,14 @@ class ScreenLockAudioDrop < Formula
     error_log_path var/"log/screen-lock-audio-drop.err"
   end
 
-  def post_install
-    system opt_bin/"screen-lock-audio-drop", "--check-permissions"
-  end
-
   def caveats
     <<~EOS
-      Bluetooth permission is required to disconnect audio devices on screen lock.
-      If you were not prompted during install, grant access manually:
-        System Settings > Privacy & Security > Bluetooth
-
       To start screen-lock-audio-drop now and restart at login:
         brew services start screen-lock-audio-drop
+
+      The first time you lock your screen, macOS will ask for Bluetooth permission.
+      You must unlock and allow access for the tool to work.
+      If you miss the prompt: System Settings > Privacy & Security > Bluetooth
 
       To stop the service:
         brew services stop screen-lock-audio-drop

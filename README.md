@@ -47,6 +47,10 @@ The tool listens for macOS screen lock/unlock notifications and uses the IOBluet
 
 Bluetooth itself stays on, so peripherals like keyboards and mice are never interrupted.
 
+## Bluetooth Permission
+
+The first time you lock your screen after installing, macOS will prompt for Bluetooth access. Unlock your Mac and allow the permission for the tool to work. If you miss the prompt, grant it manually in **System Settings > Privacy & Security > Bluetooth**.
+
 ## Requirements
 
 - macOS

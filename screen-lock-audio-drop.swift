@@ -3,9 +3,6 @@ import IOBluetooth
 
 let kBluetoothAudioMajorClass: UInt32 = 0x04
 
-/// Notification token for the connection listener (nil when unlocked)
-var connectionNotification: IOBluetoothUserNotification?
-
 func isAudioDevice(_ device: IOBluetoothDevice) -> Bool {
     return device.deviceClassMajor == kBluetoothAudioMajorClass
 }
@@ -26,7 +23,11 @@ class BluetoothGuard: NSObject {
     }
 }
 
+/// Notification token for the connection listener (nil when unlocked)
+var connectionNotification: IOBluetoothUserNotification?
+
 let guard_ = BluetoothGuard()
+
 let center = DistributedNotificationCenter.default()
 
 center.addObserver(forName: .init("com.apple.screenIsLocked"), object: nil, queue: nil) { _ in
