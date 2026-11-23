@@ -21,9 +21,10 @@ class ScreenLockAudioDrop < Formula
 
   def caveats
     <<~EOS
-      The first time you lock your screen, macOS will ask for Bluetooth permission.
-      You must unlock and allow access for the tool to work.
-      If you miss the prompt: System Settings > Privacy & Security > Bluetooth
+      When the service starts, macOS asks for Bluetooth permission.
+      You must allow access for the tool to work.
+      If you miss the prompt: System Settings > Privacy & Security > Bluetooth,
+      then restart the service.
     EOS
   end
 
