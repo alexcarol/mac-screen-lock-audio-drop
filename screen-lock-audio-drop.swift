@@ -125,6 +125,7 @@ func disconnectAudioDevices(_ trigger: String, audioAddresses: Set<String> = blu
 /// Observer that intercepts and rejects audio device connections while locked
 class BluetoothGuard: NSObject {
     @objc func onConnect(_ notification: IOBluetoothUserNotification, device: IOBluetoothDevice) {
+        guard locked else { return }
         disconnectAudioDevices("\(describe(device)) connected while locked")
     }
 }
@@ -132,24 +133,35 @@ class BluetoothGuard: NSObject {
 /// Notification token for the connection listener (nil when unlocked)
 var connectionNotification: IOBluetoothUserNotification?
 
-/// Whether the CoreAudio device list listener is installed (only while locked)
-var audioListenerInstalled = false
+/// Whether the screen is locked; the CoreAudio listener below only acts while it is
+var locked = false
 
 let guard_ = BluetoothGuard()
 
 /// A2DP and HFP devices appear in CoreAudio shortly after the Bluetooth connection, so this catches
 /// audio devices that connect while locked even when the IOBluetooth connect notification misses them.
+/// It stays installed for the life of the process: Swift bridges the closure to a new block on every
+/// call, so AudioObjectRemovePropertyListenerBlock can't remove it.
 let audioDevicesChanged: AudioObjectPropertyListenerBlock = { _, _ in
+    guard locked else { return }
     let audioAddresses = bluetoothAudioAddresses()
     if !audioAddresses.isEmpty {
         disconnectAudioDevices("Bluetooth audio device appeared while locked", audioAddresses: audioAddresses)
     }
 }
 
+var audioDevicesAddress = audioDevicesProperty
+let audioListenerStatus = AudioObjectAddPropertyListenerBlock(AudioObjectID(kAudioObjectSystemObject), &audioDevicesAddress,
+                                                              DispatchQueue.main, audioDevicesChanged)
+if audioListenerStatus != noErr {
+    log("warning: could not watch CoreAudio devices (OSStatus \(audioListenerStatus)); audio devices that connect while locked may stay connected")
+}
+
 let center = DistributedNotificationCenter.default()
 
 center.addObserver(forName: .init("com.apple.screenIsLocked"), object: nil, queue: nil) { _ in
     log("Screen locked")
+    locked = true
     if connectionNotification == nil {
         connectionNotification = IOBluetoothDevice.register(forConnectNotifications: guard_,
                                                              selector: #selector(BluetoothGuard.onConnect(_:device:)))
@@ -157,28 +169,14 @@ center.addObserver(forName: .init("com.apple.screenIsLocked"), object: nil, queu
             log("warning: could not register for Bluetooth connect notifications")
         }
     }
-    if !audioListenerInstalled {
-        var address = audioDevicesProperty
-        let status = AudioObjectAddPropertyListenerBlock(AudioObjectID(kAudioObjectSystemObject), &address,
-                                                         DispatchQueue.main, audioDevicesChanged)
-        audioListenerInstalled = status == noErr
-        if !audioListenerInstalled {
-            log("warning: could not watch CoreAudio devices (OSStatus \(status)); audio devices that connect while locked may stay connected")
-        }
-    }
     disconnectAudioDevices("lock")
 }
 
 center.addObserver(forName: .init("com.apple.screenIsUnlocked"), object: nil, queue: nil) { _ in
     log("Screen unlocked")
+    locked = false
     connectionNotification?.unregister()
     connectionNotification = nil
-    if audioListenerInstalled {
-        var address = audioDevicesProperty
-        AudioObjectRemovePropertyListenerBlock(AudioObjectID(kAudioObjectSystemObject), &address,
-                                               DispatchQueue.main, audioDevicesChanged)
-        audioListenerInstalled = false
-    }
 }
 
 // Touch IOBluetooth at startup so macOS asks for Bluetooth access now, while the user can answer,
