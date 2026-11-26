@@ -1,8 +1,8 @@
 class ScreenLockAudioDrop < Formula
   desc "Disconnect Bluetooth audio devices when your Mac screen locks"
   homepage "https://github.com/alexcarol/mac-screen-lock-audio-drop"
-  url "https://github.com/alexcarol/mac-screen-lock-audio-drop/archive/refs/tags/v0.3.2.tar.gz"
-  sha256 "a7896a257e0f67f93986dee52bbd8ac5895768e7048bcd733115710747acb0d0"
+  url "https://github.com/alexcarol/mac-screen-lock-audio-drop/archive/refs/tags/v0.3.3.tar.gz"
+  sha256 "343b60c7b3e4e4c7e41f1e70a8b5854ebb3fdc997e6f34a133d4da9b6c794b01"
   license "MIT"
 
   depends_on :macos
