@@ -45,11 +45,15 @@ The tool listens for macOS screen lock/unlock notifications and uses the IOBluet
 2. **While locked**: automatically disconnect any audio device that tries to connect
 3. **On unlock**: stop monitoring, allowing audio devices to connect freely again
 
+A Bluetooth device counts as an audio device when it provides a CoreAudio input or output (such as `AA-BB-CC-DD-EE-FF:output`), or when IOBluetooth reports the audio class of device for it. While locked, the tool also watches the CoreAudio device list, so headphones that reconnect on their own are dropped again as soon as their audio device appears.
+
 Bluetooth itself stays on, so peripherals like keyboards and mice are never interrupted.
+
+Every lock, unlock and disconnect is logged, together with the reason when nothing was disconnected. With Homebrew the log is `$(brew --prefix)/var/log/screen-lock-audio-drop.log`; with the manual install it is `/tmp/screen-lock-audio-drop.log`.
 
 ## Bluetooth Permission
 
-The first time you lock your screen after installing, macOS will prompt for Bluetooth access. Unlock your Mac and allow the permission for the tool to work. If you miss the prompt, grant it manually in **System Settings > Privacy & Security > Bluetooth**.
+When the tool starts, macOS prompts for Bluetooth access. Allow it for the tool to work. If you miss the prompt, grant it manually in **System Settings > Privacy & Security > Bluetooth** and restart the service. Each rebuild (for example a `brew upgrade`) can ask again.
 
 ## Requirements
 
